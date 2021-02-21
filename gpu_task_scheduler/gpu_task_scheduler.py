@@ -7,6 +7,8 @@ import subprocess
 import sys
 from multiprocess.managers import BaseManager
 import pathos
+import socket
+import time
 try:
     import cPickle as pickle
 except ImportError:
@@ -65,7 +67,8 @@ def gpu_worker(name, env, _lock, _config, _gpu_task_class, _config_manager,
         new_env.update(env)
         new_env.update(worker.required_env())
         pkl_path = os.path.join(
-            _config["temp_folder"], "{}_worker.pkl".format(name))
+            _config["temp_folder"], "{}_{}_{}_worker.pkl".format(
+                socket.gethostname(), time.time(), name))
         with open(pkl_path, "wb") as f:
             pickle.dump(worker, f)
 
