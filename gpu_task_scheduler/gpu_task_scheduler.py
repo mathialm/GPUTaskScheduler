@@ -100,56 +100,56 @@ def gpu_worker(name, env, _lock, _config, _gpu_task_class, _config_manager,
 
 
 class GPUTaskScheduler:
-	def __init__(self, config, gpu_task_class):
-		BaseManager.register("ConfigManager", ConfigManager)
-		BaseManager.register("Lock", multiprocess.Lock)
-		self._manager = BaseManager()
-		self._manager.start()
-		self._config_manager = self._manager.ConfigManager(config=config)
-		self._lock = self._manager.Lock()
-		self._config = self._config_manager.get_all_scheduler_config()
-		self._gpu_task_class = gpu_task_class
-		if self._config["scheduler_log_file_path"] is not None:
-			logging.basicConfig(
-				level=logging.INFO,
-				format=("%(asctime)s %(filename)s[line:%(lineno)d]"
-						" %(levelname)s %(message)s"),
-				datefmt="%a, %d %b %Y %H:%M:%S",
-				filename=self._config["scheduler_log_file_path"],
-				filemode="a"
-			)
-			console = logging.StreamHandler()
-			console.setLevel(logging.INFO)
-			formatter = logging.Formatter(
-				"%(asctime)s %(levelname)s %(message)s")
-			console.setFormatter(formatter)
-			logging.getLogger("").addHandler(console)
-		else:
-			logging.basicConfig(
-				level=logging.INFO,
-				format="%(asctime)s %(levelname)s %(message)s",
-				datefmt="%a, %d %b %Y %H:%M:%S",
-			)
+    def __init__(self, config, gpu_task_class):
+        BaseManager.register("ConfigManager", ConfigManager)
+        BaseManager.register("Lock", multiprocess.Lock)
+        self._manager = BaseManager()
+        self._manager.start()
+        self._config_manager = self._manager.ConfigManager(config=config)
+        self._lock = self._manager.Lock()
+        self._config = self._config_manager.get_all_scheduler_config()
+        self._gpu_task_class = gpu_task_class
+        if self._config["scheduler_log_file_path"] is not None:
+            logging.basicConfig(
+                level=logging.INFO,
+                format=("%(asctime)s %(filename)s[line:%(lineno)d]"
+                        " %(levelname)s %(message)s"),
+                datefmt="%a, %d %b %Y %H:%M:%S",
+                filename=self._config["scheduler_log_file_path"],
+                filemode="a"
+            )
+            console = logging.StreamHandler()
+            console.setLevel(logging.INFO)
+            formatter = logging.Formatter(
+                "%(asctime)s %(levelname)s %(message)s")
+            console.setFormatter(formatter)
+            logging.getLogger("").addHandler(console)
+        else:
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s %(levelname)s %(message)s",
+                datefmt="%a, %d %b %Y %H:%M:%S",
+            )
 
-	def start(self):
-		gpu_envs = self._config_manager.get_gpu_envs()
-		processes = []
-		for gpu_env in gpu_envs:
-			try:
-				processes.append(
-					pathos.helpers.mp.process.Process(
-						target=gpu_worker, args=(
-							gpu_env["name"], gpu_env["env"],
-							self._lock, self._config, self._gpu_task_class,
-							self._config_manager, logging.getLogger(""))))
-			except AttributeError:
-				processes.append(
-					pathos.helpers.mp.Process(
-						target=gpu_worker, args=(
-							gpu_env["name"], gpu_env["env"],
-							self._lock, self._config, self._gpu_task_class,
-							self._config_manager, logging.getLogger(""))))
-		for process in processes:
-			process.start()
-		for process in processes:
-			process.join()
+    def start(self):
+        gpu_envs = self._config_manager.get_gpu_envs()
+        processes = []
+        for gpu_env in gpu_envs:
+            try:
+                processes.append(
+                    pathos.helpers.mp.process.Process(
+                        target=gpu_worker, args=(
+                            gpu_env["name"], gpu_env["env"],
+                            self._lock, self._config, self._gpu_task_class,
+                            self._config_manager, logging.getLogger(""))))
+            except AttributeError:
+                processes.append(
+                    pathos.helpers.mp.Process(
+                        target=gpu_worker, args=(
+                            gpu_env["name"], gpu_env["env"],
+                            self._lock, self._config, self._gpu_task_class,
+                            self._config_manager, logging.getLogger(""))))
+        for process in processes:
+            process.start()
+        for process in processes:
+            process.join()

@@ -119,6 +119,7 @@ class ConfigManager:
             obj["name"] = "gpu{}".format(gpu)
             obj["env"] = {}
             obj["env"]["CUDA_VISIBLE_DEVICES"] = gpu
+            print("Gpu formatting: " + str(obj))
             envs.append(obj)
         return envs
 
